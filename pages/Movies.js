@@ -62,8 +62,6 @@ const Movies = () => {
     getMovies();
   }, [searchTermState, pageCount]);
 
-  console.log("Check the main ci");
-
   return (
     <Container>
       <HeaderContainer>
