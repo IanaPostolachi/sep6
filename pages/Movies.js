@@ -2,15 +2,21 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import MovieCard from "../components/Cards/MovieCards/MovieCard";
 import { theme } from "../styles/defaultTheme";
-import { Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectMovieSearchTermState } from "../redux/movieSlice";
 import Image from "next/image";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [searchedMovies, setSearchedMovies] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [pageCount, setPageCount] = useState(1);
+  const [genreId, setGenreId] = useState("");
   const searchTermState = useSelector(selectMovieSearchTermState);
 
   const leftArrowIcon = require("../components/Icons/leftArrowIcon.png");
@@ -52,6 +58,22 @@ const Movies = () => {
       .catch((err) => console.error("error:" + err));
   });
 
+  const getGenres = () => {
+    const url = "https://api.themoviedb.org/3/genre/movie/list?language=en";
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_ACCESS_TOKEN}`,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json) => setGenres(json.genres))
+      .catch((err) => console.error("error:" + err));
+  };
+
   useEffect(() => {
     if (searchTermState) {
       movieSearch(searchTermState);
@@ -60,11 +82,41 @@ const Movies = () => {
       setSearchedMovies([]);
     }
     getMovies();
+    getGenres();
   }, [searchTermState, pageCount]);
+
+  const handleChange = (event) => {
+    setGenreId(event.target.value);
+    const filteredMovies = movies.filter((movie) =>
+      movie.genre_ids ? movie.genre_ids.includes(genreId) : movie
+    );
+    console.log(filteredMovies?.length + "Opa opa");
+    setMovies(filteredMovies);
+  };
+
+  console.log(genreId + "LALAL");
 
   return (
     <Container>
       <HeaderContainer>
+        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          <InputLabel id="demo-select-small-label">Genre</InputLabel>
+          <Select
+            labelId="demo-select-small-label"
+            id="demo-select-small"
+            value={genreId}
+            label="Genre"
+            onChange={handleChange}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {genres?.map((genre) => (
+              <MenuItem value={genre.id}>{genre.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <H1>Movies</H1>
       </HeaderContainer>
       <Grid container>
