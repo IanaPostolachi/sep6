@@ -113,9 +113,12 @@ const Movies = () => {
   return (
     <Container>
       <GenreHeaderContainer>
-        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+        <FormControl sx={{ m: 1, minWidth: 170 }} size="small">
           <InputLabel id="demo-select-small-label">Genre</InputLabel>
           <Select
+            MenuProps={{
+              PaperProps: { style: { maxHeight: 500 } },
+            }}
             labelId="demo-select-small-label"
             id="demo-select-small"
             value={genreId}
