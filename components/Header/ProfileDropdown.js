@@ -127,7 +127,7 @@ const ProfileDropdown = () => {
           >
             Login
           </LoginButton>
-        )}{" "}
+        )}
         <ImageWrapper>
           <Image
             onClick={() => {
@@ -145,30 +145,32 @@ const ProfileDropdown = () => {
           <Backdrop />
           <SettingsMenu ref={dropdownMenuRef}>
             {user != null && personalInfo && (
-              <TopSection>
-                <Image
-                  src={personIcon}
-                  width={40}
-                  height={40}
-                  alt="personIcon"
-                />
-                <TextTopSection>
-                  <H1>{personalInfo.nickname}</H1>
-                  <P>{personalInfo.email}</P>
-                </TextTopSection>
-              </TopSection>
+              <>
+                <TopSection>
+                  <Image
+                    src={personIcon}
+                    width={40}
+                    height={40}
+                    alt="personIcon"
+                  />
+                  <TextTopSection>
+                    <H1>{personalInfo.nickname}</H1>
+                    <P>{personalInfo.email}</P>
+                  </TextTopSection>
+                </TopSection>
+                <div
+                  onClick={() => {
+                    setDropdownMenuOpen(false);
+                    setAccountMenuOpen(true);
+                  }}
+                >
+                  <MenuItem
+                    menuItemImage={menuAccountIcon}
+                    text="Profile"
+                  ></MenuItem>
+                </div>
+              </>
             )}
-            <div
-              onClick={() => {
-                setDropdownMenuOpen(false);
-                setAccountMenuOpen(true);
-              }}
-            >
-              <MenuItem
-                menuItemImage={menuAccountIcon}
-                text="Account"
-              ></MenuItem>
-            </div>
             <div
               onClick={() => {
                 setDropdownMenuOpen(false);
@@ -191,17 +193,19 @@ const ProfileDropdown = () => {
                 text="About us"
               ></MenuItem>
             </div>
-            <div
-              onClick={() => {
-                handleLogout();
-                setDropdownMenuOpen(false);
-              }}
-            >
-              <MenuItem
-                menuItemImage={menuLogOutIcon}
-                text="Logout"
-              />
-            </div>
+            {user != null && personalInfo && (
+              <div
+                onClick={() => {
+                  handleLogout();
+                  setDropdownMenuOpen(false);
+                }}
+              >
+                <MenuItem
+                  menuItemImage={menuLogOutIcon}
+                  text="Logout"
+                />
+              </div>
+            )}
           </SettingsMenu>
         </>
       )}

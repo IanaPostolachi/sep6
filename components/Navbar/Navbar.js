@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { SidebarData } from "./SidebarData";
+import {useRouter} from "next/router";
+import {SidebarData} from "./SidebarData";
 import styled from "styled-components";
-import { theme } from "../../styles/defaultTheme";
+import {theme} from "../../styles/defaultTheme";
 import Image from "next/image";
 
-import { useAuth } from "../../useAuth";
+import {useAuth} from "../../useAuth";
 
 const Navbar = () => {
   const logo = require("./logo.png");
@@ -15,35 +15,37 @@ const Navbar = () => {
   return (
     <>
       <Container className="navbarContainer">
-        <div className="navbar">
-          <TopSection>
-            <Link href="/">
-              <Image src={logo} width={230} height={70} alt="personIcon" />
-            </Link>
-          </TopSection>
-          <NavMenuItems>
-            {SidebarData.map((item, index) => {
-              if (item.title === "Lists" && !user) {
-                return null; // Skip rendering "Lists" item when user is not logged in
-              }
-
-              return (
-                <NavLink
-                  key={index}
-                  className={
-                    location.pathname === item.path
-                      ? "active-link"
-                      : "nonactive-link"
-                  }
-                >
-                  <Link href={item.path}>
-                    <MenuText>{item.title}</MenuText>
-                  </Link>
-                </NavLink>
-              );
-            })}
-          </NavMenuItems>
-        </div>
+        <TopSection>
+          <Link href="/">
+            <Image
+              src={logo}
+              width={230}
+              height={70}
+              alt="personIcon"
+            />
+          </Link>
+        </TopSection>
+        <NavMenuItems>
+          {SidebarData.map((item, index) => {
+            if ((item.title === "Lists" || item.title === "Watched") && !user) {
+              return null;
+            }
+            return (
+              <NavLink
+                key={index}
+                className={
+                  location.pathname === item.path
+                    ? "active-link"
+                    : "nonactive-link"
+                }
+              >
+                <Link href={item.path}>
+                  <MenuText>{item.title}</MenuText>
+                </Link>
+              </NavLink>
+            );
+          })}
+        </NavMenuItems>
       </Container>
     </>
   );
@@ -53,27 +55,33 @@ export default Navbar;
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
   height: 100vh;
   position: fixed;
-  align-items: center;
+  justify-content: center;
+  align-items: start;
   overflow: hidden;
   width: 600px;
 `;
 
 const TopSection = styled.div`
+  height: 100%;
+  flex-direction: column;
   display: flex;
   align-items: center;
-  justify-items: center;
-  padding: 0 ${theme.spacings.px20};
+  justify-content: start;
+  padding: ${theme.spacings.px20};
 `;
 
 const NavMenuItems = styled.ul`
+  position: absolute;
   display: flex;
   flex-direction: column;
   list-style: none;
   padding: 0 ${theme.spacings.px20};
   width: 300px;
   align-items: start;
+  justify-content: center;
 `;
 
 const NavLink = styled.li`

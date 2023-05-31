@@ -32,16 +32,26 @@ const Lists = () => {
 
       const dataListener = onValue(userRef, (snapshot) => {
         const fetchedData = snapshot.val();
-        setAllLists(fetchedData);
 
         if (fetchedData) {
-          const listNames = Object.keys(fetchedData).map((listId, index) => ({
-            name: fetchedData[listId].name,
+          const filteredData = Object.keys(fetchedData).reduce(
+            (acc, listId) => {
+              if (fetchedData[listId].name !== "Watched") {
+                acc[listId] = fetchedData[listId];
+              }
+              return acc;
+            },
+            {}
+          );
+          setAllLists(filteredData);
+
+          const listNames = Object.keys(filteredData).map((listId, index) => ({
+            name: filteredData[listId].name,
             index,
           }));
           setAllListNames(listNames);
 
-          const favoriteListData = fetchedData["Favorite"];
+          const favoriteListData = filteredData["Favorite"];
           if (favoriteListData && typeof favoriteListData === "object") {
             const listMovies = Object.keys(favoriteListData)
               .filter((key) => key !== "name")
@@ -265,7 +275,9 @@ const Lists = () => {
               <Grid
                 item
                 xs={12}
-                md
+                sm={4}
+                md={2}
+                padding="1rem"
                 key={movie.id}
               >
                 <MovieCard
