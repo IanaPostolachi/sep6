@@ -285,8 +285,10 @@ const MovieDetailsCard = ({
                   {ListMenuOpen && (
                     <ListMenu ref={listMenuRef}>
                       <P>Your lists: </P>
-                      {notIncludedInLists.map((item, index) => {
-                        return (
+                      {notIncludedInLists.length === 0 ? (
+                        <p>There are no lists without this movie</p>
+                      ) : (
+                        notIncludedInLists.map((item, index) => (
                           <MenuItem
                             key={index}
                             onClick={() => {
@@ -296,8 +298,8 @@ const MovieDetailsCard = ({
                           >
                             <MenuText>{item}</MenuText>
                           </MenuItem>
-                        );
-                      })}
+                        ))
+                      )}
                     </ListMenu>
                   )}
                 </>
