@@ -73,7 +73,7 @@ const Watched = () => {
   return (
     <>
       <HeaderContainer>
-        <H1>Movies</H1>
+        <H1>Watched movies</H1>
       </HeaderContainer>
       <Container>
         {currentListMovies && currentListMovies.length === 0 ? (
@@ -87,7 +87,9 @@ const Watched = () => {
               <Grid
                 item
                 xs={12}
-                md
+                sm={4}
+                md={2}
+                padding="1rem"
                 key={movie.id}
               >
                 <MovieCard

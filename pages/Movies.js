@@ -2,15 +2,22 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import MovieCard from "../components/Cards/MovieCards/MovieCard";
 import { theme } from "../styles/defaultTheme";
-import { Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectMovieSearchTermState } from "../redux/movieSlice";
 import Image from "next/image";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [searchedMovies, setSearchedMovies] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [pageCount, setPageCount] = useState(1);
+  const [genreId, setGenreId] = useState("");
+  const [filteredMovies, setFilteredMovies] = useState();
   const searchTermState = useSelector(selectMovieSearchTermState);
 
   const leftArrowIcon = require("../components/Icons/leftArrowIcon.png");
@@ -52,6 +59,38 @@ const Movies = () => {
       .catch((err) => console.error("error:" + err));
   });
 
+  const getSortedMovies = () => {
+    const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${genreId}&page=${pageCount}`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_ACCESS_TOKEN}`,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json) => setFilteredMovies(json.results))
+      .catch((err) => console.error("error:" + err));
+  };
+
+  const getGenres = () => {
+    const url = "https://api.themoviedb.org/3/genre/movie/list?language=en";
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_ACCESS_TOKEN}`,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json) => setGenres(json.genres))
+      .catch((err) => console.error("error:" + err));
+  };
+
   useEffect(() => {
     if (searchTermState) {
       movieSearch(searchTermState);
@@ -59,17 +98,51 @@ const Movies = () => {
     } else {
       setSearchedMovies([]);
     }
-    getMovies();
-  }, [searchTermState, pageCount]);
+    getGenres();
+    if (genreId) {
+      getSortedMovies();
+    } else {
+      getMovies();
+    }
+  }, [searchTermState, pageCount, genreId]);
+
+  const handleChange = (event) => {
+    setGenreId(event.target.value);
+  };
 
   return (
     <Container>
-      <HeaderContainer>
-        <H1>Movies</H1>
-      </HeaderContainer>
+      <GenreHeaderContainer>
+        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          <InputLabel id="demo-select-small-label">Genre</InputLabel>
+          <Select
+            labelId="demo-select-small-label"
+            id="demo-select-small"
+            value={genreId}
+            label="Genre"
+            onChange={handleChange}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {genres?.map((genre) => (
+              <MenuItem value={genre.id}>{genre.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <HeaderContainer>
+          <H1>Movies</H1>
+        </HeaderContainer>
+      </GenreHeaderContainer>
       <Grid container>
         {searchedMovies?.length !== 0
           ? searchedMovies?.map((movie) => (
+              <Grid item xs={12} sm={4} md={2} padding="1rem" key={movie.id}>
+                <MovieCard id={movie.id} />
+              </Grid>
+            ))
+          : genreId
+          ? filteredMovies?.map((movie) => (
               <Grid item xs={12} sm={4} md={2} padding="1rem" key={movie.id}>
                 <MovieCard id={movie.id} />
               </Grid>
@@ -150,6 +223,12 @@ const Container = styled.div`
     0px;
 `;
 
+const GenreHeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 const PageCounterContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -188,4 +267,5 @@ const HeaderContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding-bottom: ${theme.spacings.px20};
+  margin-left: -150px;
 `;

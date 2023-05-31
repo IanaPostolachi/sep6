@@ -10,11 +10,14 @@ import {useRouter} from "next/router";
 import {auth, db} from "../firebase";
 import {setShowLoginPopup} from "../components/Header/loginPopUpVariable";
 import {ref, set} from "firebase/database";
+import Image from "next/image";
 
 const CreateAccount = () => {
   const personIcon = require("../components/Icons/personIcon.png");
   const emailIcon = require("../components/Icons/emailIcon.png");
   const keyIcon = require("../components/Icons/keyIcon.png");
+  const logo = require("../components/Navbar/logo.png");
+
   const router = useRouter();
 
   // Create Account handling
@@ -25,6 +28,9 @@ const CreateAccount = () => {
     password: "",
     confirmPassword: "",
   });
+
+  const [passwordError, setPasswordError] = useState(false);
+  const [errorMsgDisplay, setErrorMsgDisplay] = useState(false);
 
   const createAccountFunction = async () => {
     if (fields.password === fields.confirmPassword) {
@@ -56,8 +62,10 @@ const CreateAccount = () => {
 
         router.push("/");
       } catch (error) {
-        console.log(error);
+        setErrorMsgDisplay(true);
       }
+    } else {
+      setPasswordError(true);
     }
   };
   const handleChange = (event) => {
@@ -66,7 +74,6 @@ const CreateAccount = () => {
       ...prevState,
       [name]: value,
     }));
-    console.log(name, value);
   };
 
   // Login popup handling
@@ -79,7 +86,12 @@ const CreateAccount = () => {
   return (
     <>
       <Container className="createAccountBackground">
-        <h1> Le Logo</h1>
+        <Image
+          src={logo}
+          width={230}
+          height={70}
+          alt="personIcon"
+        />
         <H2>Create Account</H2>
         <P>Sign up for free and start \exploring a world of possibilities!</P>
         <InputContainer>
@@ -114,7 +126,11 @@ const CreateAccount = () => {
             type={"password"}
             name={"confirmPassword"}
             handleChange={handleChange}
-          ></AccountInput>
+          ></AccountInput>{" "}
+          {passwordError && (
+            <ErrorP>Password and Repeat password doesnt match</ErrorP>
+          )}
+          {errorMsgDisplay && <ErrorP>Incorrect username or password</ErrorP>}
           <CreateAccountButton onClick={createAccountFunction}>
             Create Account
           </CreateAccountButton>
@@ -141,6 +157,7 @@ const H2 = styled.h2`
   font-size: ${theme.fontSizes.px36};
   font-weight: ${theme.fontWeight.w700};
   margin: 0;
+  padding-top: 100px;
 `;
 
 const P = styled.p`
@@ -187,4 +204,13 @@ const LoginButton = styled.div`
   &:hover {
     box-shadow: ${theme.shadows.hoverShadow};
   }
+`;
+
+const ErrorP = styled.p`
+  color: red;
+  font-size: ${theme.fontSizes.px15};
+  font-weight: ${theme.fontWeight.w500};
+  margin-bottom: ${theme.spacings.px20};
+  margin-top: 0;
+  align-self: center;
 `;

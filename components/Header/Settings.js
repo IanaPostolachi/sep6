@@ -23,7 +23,10 @@ const Settings = ({handleCloseSettings}) => {
     <>
       <Backdrop />
       <Container ref={popupRef}>
-        <p> le text</p>
+        <HeaderContainer>
+          <H1>About us</H1>
+        </HeaderContainer>
+        <p>Under construction</p>
       </Container>
     </>
   );
@@ -49,4 +52,23 @@ const Container = styled.div`
   background-color: white;
   padding: ${theme.spacings.px20};
   border-radius: ${theme.spacings.px10};
+`;
+
+const H1 = styled.h1`
+  text-align: center;
+  position: relative;
+  margin: 0;
+  font-size: ${theme.fontSizes.px36};
+  font-weight: ${theme.fontWeight.w700};
+  color: ${theme.colors.greenDark};
+  padding: 0 ${theme.spacings.px20};
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+`;
+
+const HeaderContainer = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: ${theme.spacings.px20};
 `;
