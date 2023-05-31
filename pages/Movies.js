@@ -102,7 +102,6 @@ const Movies = () => {
     if (genreId) {
       getSortedMovies();
     } else {
-      setPageCount(1);
       getMovies();
     }
   }, [searchTermState, pageCount, genreId]);
