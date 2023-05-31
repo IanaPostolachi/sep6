@@ -17,6 +17,7 @@ const Movies = () => {
   const [genres, setGenres] = useState([]);
   const [pageCount, setPageCount] = useState(1);
   const [genreId, setGenreId] = useState("");
+  const [filteredMovies, setFilteredMovies] = useState();
   const searchTermState = useSelector(selectMovieSearchTermState);
 
   const leftArrowIcon = require("../components/Icons/leftArrowIcon.png");
@@ -58,6 +59,22 @@ const Movies = () => {
       .catch((err) => console.error("error:" + err));
   });
 
+  const getSortedMovies = () => {
+    const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${genreId}&page=${pageCount}`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_ACCESS_TOKEN}`,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json) => setFilteredMovies(json.results))
+      .catch((err) => console.error("error:" + err));
+  };
+
   const getGenres = () => {
     const url = "https://api.themoviedb.org/3/genre/movie/list?language=en";
     const options = {
@@ -81,24 +98,22 @@ const Movies = () => {
     } else {
       setSearchedMovies([]);
     }
-    getMovies();
     getGenres();
-  }, [searchTermState, pageCount]);
+    if (genreId) {
+      getSortedMovies();
+    } else {
+      setPageCount(1);
+      getMovies();
+    }
+  }, [searchTermState, pageCount, genreId]);
 
   const handleChange = (event) => {
     setGenreId(event.target.value);
-    const filteredMovies = movies.filter((movie) =>
-      movie.genre_ids ? movie.genre_ids.includes(genreId) : movie
-    );
-    console.log(filteredMovies?.length + "Opa opa");
-    setMovies(filteredMovies);
   };
-
-  console.log(genreId + "LALAL");
 
   return (
     <Container>
-      <HeaderContainer>
+      <GenreHeaderContainer>
         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
           <InputLabel id="demo-select-small-label">Genre</InputLabel>
           <Select
@@ -116,12 +131,19 @@ const Movies = () => {
             ))}
           </Select>
         </FormControl>
-
-        <H1>Movies</H1>
-      </HeaderContainer>
+        <HeaderContainer>
+          <H1>Movies</H1>
+        </HeaderContainer>
+      </GenreHeaderContainer>
       <Grid container>
         {searchedMovies?.length !== 0
           ? searchedMovies?.map((movie) => (
+              <Grid item xs={12} sm={4} md={2} padding="1rem" key={movie.id}>
+                <MovieCard id={movie.id} />
+              </Grid>
+            ))
+          : genreId
+          ? filteredMovies?.map((movie) => (
               <Grid item xs={12} sm={4} md={2} padding="1rem" key={movie.id}>
                 <MovieCard id={movie.id} />
               </Grid>
@@ -202,6 +224,12 @@ const Container = styled.div`
     0px;
 `;
 
+const GenreHeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 const PageCounterContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -240,4 +268,5 @@ const HeaderContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding-bottom: ${theme.spacings.px20};
+  margin-left: -150px;
 `;
